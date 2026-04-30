@@ -1,0 +1,4 @@
+This is an IoT course assignment.
+
+Name: Omer Levi  
+Project partner: Meital Adibi
