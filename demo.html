@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Kitchen IoT Demo</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #f7f7fb, #e8f4ff);
+      color: #222;
+    }
+
+    header {
+      background: linear-gradient(135deg, #243b55, #141e30);
+      color: white;
+      padding: 35px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 38px;
+    }
+
+    header p {
+      margin-top: 10px;
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 1150px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .status-box {
+      background: white;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 30px;
+      background: #d4f8df;
+      color: #147a35;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      transition: 0.25s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .icon {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    .card h3 {
+      margin: 8px 0;
+      font-size: 22px;
+    }
+
+    .value {
+      font-size: 30px;
+      font-weight: bold;
+      margin: 12px 0;
+      color: #243b55;
+    }
+
+    .normal {
+      color: #18a558;
+      font-weight: bold;
+    }
+
+    .warning {
+      color: #e67e22;
+      font-weight: bold;
+    }
+
+    .danger {
+      color: #d63031;
+      font-weight: bold;
+    }
+
+    .controls {
+      margin-top: 30px;
+      background: white;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 22px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      background: #243b55;
+      color: white;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.88;
+      transform: scale(1.03);
+    }
+
+    .danger-btn {
+      background: #d63031;
+    }
+
+    .warning-btn {
+      background: #e67e22;
+    }
+
+    .safe-btn {
+      background: #18a558;
+    }
+
+    .log {
+      margin-top: 30px;
+      background: #141e30;
+      color: #f1f1f1;
+      padding: 22px;
+      border-radius: 18px;
+      min-height: 160px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    }
+
+    .log h2 {
+      margin-top: 0;
+    }
+
+    .log-entry {
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+      padding: 8px 0;
+      font-size: 15px;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 25px;
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 28px;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Smart Kitchen IoT System</h1>
+    <p>מערכת דמו לניטור מטבח חכם באמצעות חיישני IoT</p>
+  </header>
+
+  <main class="container">
+
+    <section class="status-box">
+      <h2>מצב מערכת כללי</h2>
+      <span id="systemStatus" class="status">המערכת תקינה ופעילה</span>
+    </section>
+
+    <section class="grid">
+
+      <div class="card">
+        <div class="icon">🌡️</div>
+        <h3>חיישן טמפרטורה</h3>
+        <div id="temperature" class="value">24°C</div>
+        <p id="tempStatus" class="normal">טמפרטורה תקינה</p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🔥</div>
+        <h3>חיישן גז</h3>
+        <div id="gas" class="value">8%</div>
+        <p id="gasStatus" class="normal">לא זוהתה דליפת גז</p>
+      </div>
+
+      <div class="card">
+        <div class="icon">💨</div>
+        <h3>חיישן עשן</h3>
+        <div id="smoke" class="value">3%</div>
+        <p id="smokeStatus" class="normal">אין סימני עשן חריגים</p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🚰</div>
+        <h3>ברז גז חכם</h3>
+        <div id="valve" class="value">פתוח</div>
+        <p id="valveStatus" class="normal">זרימת גז תקינה</p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🌀</div>
+        <h3>מערכת אוורור</h3>
+        <div id="fan" class="value">כבויה</div>
+        <p id="fanStatus" class="normal">אין צורך באוורור</p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🚨</div>
+        <h3>אזעקה</h3>
+        <div id="alarm" class="value">כבויה</div>
+        <p id="alarmStatus" class="normal">אין אירוע חריג</p>
+      </div>
+
+    </section>
+
+    <section class="controls">
+      <h2>סימולציית תרחישים</h2>
+      <p>הכפתורים מדמים מצבים אפשריים במטבח ומציגים כיצד המערכת מגיבה בזמן אמת.</p>
+
+      <div class="buttons">
+        <button class="warning-btn" onclick="simulateHeat()">דמה התחממות</button>
+        <button class="danger-btn" onclick="simulateGasLeak()">דמה דליפת גז</button>
+        <button class="danger-btn" onclick="simulateSmoke()">דמה עשן</button>
+        <button onclick="turnFanOn()">הפעל אוורור</button>
+        <button onclick="closeGasValve()">סגור ברז גז</button>
+        <button class="safe-btn" onclick="resetSystem()">איפוס מערכת</button>
+      </div>
+    </section>
+
+    <section class="log">
+      <h2>יומן אירועים</h2>
+      <div id="eventLog">
+        <div class="log-entry">המערכת הופעלה בהצלחה</div>
+        <div class="log-entry">כל החיישנים מחוברים ומדווחים נתונים</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    Demo project by Omer Levi | IoT Smart Home Kitchen
+  </footer>
+
+  <script>
+    function addLog(message) {
+      const log = document.getElementById("eventLog");
+      const time = new Date().toLocaleTimeString("he-IL");
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      entry.textContent = time + " - " + message;
+      log.prepend(entry);
+    }
+
+    function setSystemDanger(message) {
+      const status = document.getElementById("systemStatus");
+      status.textContent = message;
+      status.style.background = "#ffd6d6";
+      status.style.color = "#b30000";
+    }
+
+    function setSystemWarning(message) {
+      const status = document.getElementById("systemStatus");
+      status.textContent = message;
+      status.style.background = "#ffe9c7";
+      status.style.color = "#b45f00";
+    }
+
+    function setSystemSafe() {
+      const status = document.getElementById("systemStatus");
+      status.textContent = "המערכת תקינה ופעילה";
+      status.style.background = "#d4f8df";
+      status.style.color = "#147a35";
+    }
+
+    function simulateHeat() {
+      document.getElementById("temperature").textContent = "47°C";
+      document.getElementById("tempStatus").textContent = "זוהתה התחממות חריגה";
+      document.getElementById("tempStatus").className = "warning";
+
+      document.getElementById("fan").textContent = "פעילה";
+      document.getElementById("fanStatus").textContent = "אוורור הופעל אוטומטית";
+      document.getElementById("fanStatus").className = "warning";
+
+      setSystemWarning("אזהרה: טמפרטורה גבוהה במטבח");
+      addLog("זוהתה עלייה חריגה בטמפרטורה - מערכת האוורור הופעלה");
+    }
+
+    function simulateGasLeak() {
+      document.getElementById("gas").textContent = "76%";
+      document.getElementById("gasStatus").textContent = "דליפת גז זוהתה";
+      document.getElementById("gasStatus").className = "danger";
+
+      document.getElementById("valve").textContent = "סגור";
+      document.getElementById("valveStatus").textContent = "ברז הגז נסגר אוטומטית";
+      document.getElementById("valveStatus").className = "danger";
+
+      document.getElementById("alarm").textContent = "פעילה";
+      document.getElementById("alarmStatus").textContent = "אזעקת חירום הופעלה";
+      document.getElementById("alarmStatus").className = "danger";
+
+      document.getElementById("fan").textContent = "פעילה";
+      document.getElementById("fanStatus").textContent = "אוורור חירום פעיל";
+      document.getElementById("fanStatus").className = "danger";
+
+      setSystemDanger("סכנה: דליפת גז זוהתה");
+      addLog("אירוע חירום: דליפת גז - הברז נסגר והאזעקה הופעלה");
+    }
+
+    function simulateSmoke() {
+      document.getElementById("smoke").textContent = "68%";
+      document.getElementById("smokeStatus").textContent = "רמת עשן גבוהה";
+      document.getElementById("smokeStatus").className = "danger";
+
+      document.getElementById("alarm").textContent = "פעילה";
+      document.getElementById("alarmStatus").textContent = "אזעקה הופעלה עקב עשן";
+      document.getElementById("alarmStatus").className = "danger";
+
+      setSystemDanger("סכנה: זוהה עשן במטבח");
+      addLog("זוהתה רמת עשן חריגה - האזעקה הופעלה");
+    }
+
+    function turnFanOn() {
+      document.getElementById("fan").textContent = "פעילה";
+      document.getElementById("fanStatus").textContent = "האוורור הופעל ידנית";
+      document.getElementById("fanStatus").className = "normal";
+
+      addLog("מערכת האוורור הופעלה ידנית");
+    }
+
+    function closeGasValve() {
+      document.getElementById("valve").textContent = "סגור";
+      document.getElementById("valveStatus").textContent = "ברז הגז נסגר ידנית";
+      document.getElementById("valveStatus").className = "warning";
+
+      addLog("ברז הגז נסגר ידנית על ידי המשתמש");
+    }
+
+    function resetSystem() {
+      document.getElementById("temperature").textContent = "24°C";
+      document.getElementById("tempStatus").textContent = "טמפרטורה תקינה";
+      document.getElementById("tempStatus").className = "normal";
+
+      document.getElementById("gas").textContent = "8%";
+      document.getElementById("gasStatus").textContent = "לא זוהתה דליפת גז";
+      document.getElementById("gasStatus").className = "normal";
+
+      document.getElementById("smoke").textContent = "3%";
+      document.getElementById("smokeStatus").textContent = "אין סימני עשן חריגים";
+      document.getElementById("smokeStatus").className = "normal";
+
+      document.getElementById("valve").textContent = "פתוח";
+      document.getElementById("valveStatus").textContent = "זרימת גז תקינה";
+      document.getElementById("valveStatus").className = "normal";
+
+      document.getElementById("fan").textContent = "כבויה";
+      document.getElementById("fanStatus").textContent = "אין צורך באוורור";
+      document.getElementById("fanStatus").className = "normal";
+
+      document.getElementById("alarm").textContent = "כבויה";
+      document.getElementById("alarmStatus").textContent = "אין אירוע חריג";
+      document.getElementById("alarmStatus").className = "normal";
+
+      setSystemSafe();
+      addLog("המערכת אופסה וחזרה למצב תקין");
+    }
+  </script>
+
+</body>
+</html>
